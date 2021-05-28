@@ -1,6 +1,7 @@
 import express from 'express'
 import bodyParser from 'body-parser'
-import models from './models'
+import db from '../models'
+import components from '../components'
 
 const app = express()
 const port = 3000
@@ -12,12 +13,9 @@ app.use(
   })
 )
 
-app.get('/', (request, response) => {
-  response.json({ info: 'Node.js, Express, and Postgres API' })
+db.sequelize.sync({ force: true }).then(() => {
+  console.log("Drop and re-sync db.")
 })
-app.get('/roles', models.getRoles)
-app.get('/roles/:id', models.getRoleById)
-app.post('/roles', models.createRole)
 
 app.listen(port, () => {
   console.log(`App running on port ${port}.`)

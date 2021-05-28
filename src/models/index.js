@@ -1,46 +1,69 @@
-import { Pool } from 'pg'
-import 'dotenv/config';
+import { sequelize, Sequelize } from '../config'
+import user from './user'
+import dairy from './dairy'
+import alarm from './alarm'
+import bear from './bear'
+import result from './result'
+import voice from './voice'
+import card from './card'
 
-const pool = new Pool({
-  user: process.env.POSTGRES_USER,
-  host: process.env.POSTGRES_HOST,
-  database: process.env.POSTGRES_DB,
-  password: process.env.POSTGRES_PASSWORD,
-  port: process.env.POSTGRES_PORT,
+const db = {};
+
+db.Sequelize = Sequelize;
+db.sequelize = sequelize;
+
+db.user = user(sequelize, Sequelize)
+db.dairy = dairy(sequelize, Sequelize)
+db.alarm = alarm(sequelize, Sequelize)
+db.bear = bear(sequelize, Sequelize)
+db.result = result(sequelize, Sequelize)
+db.voice = voice(sequelize, Sequelize)
+db.card = card(sequelize, Sequelize)
+
+// User Relation
+db.user.hasMany(db.dairy, {
+  as: 'dairies'
+})
+db.user.hasMany(db.result, {
+  as: 'results'
+})
+db.user.hasMany(db.voice, {
+  as: 'voices'
 })
 
-// List all role in database.
-const getRoles = (req, res) => {
-  pool.query('SELECT * FROM roles ORDER BY id ASC', (err, results) => {
-    if (err) {
-      throw err;
-    }
-    res.status(200).json(results.rows)
-  })
-}
+// Dairy Relation
+db.dairy.belongsTo(db.user, {
+  foreignKey: 'id',
+  as: 'user'
+})
 
-// Get role by role id.
-const getRoleById = (req, res) => {
-  const id = parseInt(req.params.id)
+// Result Relation
+db.result.belongsTo(db.user, {
+  foreignKey: 'id',
+  as: 'user'
+})
+db.result.belongsTo(db.card, {
+  foreignKey: 'id',
+  as: 'card'
+})
 
-  pool.query(`SELECT * FROM roles WHERE id = ${id}`, (err, results) => {
-    if (err) {
-      throw err;
-    }
-    res.status(200).json(results.rows)
-  })
-}
+// Card Relation
+db.card.hasOne(db.result, {
+  as: 'result'
+})
+db.card.hasOne(db.bear, {
+  as: 'bear'
+})
 
-// Create role
-const createRole = (req, res) => {
-  const { role_name } = req.body
+// Bear Relation
+db.bear.belongsTo(db.card, {
+  foreignKey: 'id',
+  as: 'card'
+})
+// db.bear.has(db.bear, {
+//   foreignKey: 'id',
+//   as: 'bear'
+// })
 
-  pool.query(`INSERT INTO roles (role_name) VALUES ('${role_name}')`, (err, result) => {
-    if (err) {
-      throw err;
-    }
-    res.status(201).send('Success')
-  })
-}
 
-export default { getRoles, getRoleById, createRole }
+export default db
