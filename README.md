@@ -3,8 +3,11 @@
 enter the project directory and run the following command
 
 ```
-npm install
-npm start
+yarn install
+yarn db:create
+yarn db:migrate
+yarn db:seeds
+yarn dev // for development environment.
 ```
 
 ## Set environment
@@ -12,9 +15,9 @@ npm start
 Please copy `.env.dist` file and rename to `.env` then override your environment value.
 
 ```
-POSTGRES_USER=username
-POSTGRES_HOST=postgres_host
-POSTGRES_DB=database_name
-POSTGRES_PASSWORD=password
-POSTGRES_PORT=postgres_port
+PORT=server_port
+DB_HOST=database_host
+DB_USERNAME=database_username
+DB_PASSWORD=database_password
+DB_PORT=database_port
 ```
